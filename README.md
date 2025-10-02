@@ -1,7 +1,5 @@
 # ERP LECOQ - Backend
-
-Sistema ERP completo para la empresa LECOQ, especializada en la venta al por mayor de bebidas energizantes.
-
+---
 ## 🚀 Inicio Rápido
 
 ### Prerrequisitos
