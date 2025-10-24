@@ -1,6 +1,7 @@
 package com.lecoq.erp.controller;
 
 import com.lecoq.erp.dto.ApiResponse;
+import com.lecoq.erp.dto.ProductoDTO;
 import com.lecoq.erp.entity.Producto;
 import com.lecoq.erp.service.ProductoService;
 import jakarta.validation.Valid;
@@ -29,9 +30,10 @@ public class ProductoController {
     public ResponseEntity<ApiResponse> getAllProductos() {
         try {
             List<Producto> productos = productoService.findAllActiveOrderByName();
-            return ResponseEntity.ok(ApiResponse.success("Productos obtenidos exitosamente", productos));
+            var dto = productos.stream().map(ProductoDTO::from).toList();
+            return ResponseEntity.ok(ApiResponse.success("Productos obtenidos exitosamente", dto));
         } catch (Exception e) {
-            log.error("Error obteniendo productos: {}", e.getMessage());
+            log.error("Error obteniendo productos: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ApiResponse.error("Error obteniendo productos: " + e.getMessage()));
         }
@@ -42,9 +44,10 @@ public class ProductoController {
     public ResponseEntity<ApiResponse> getAllProductosIncludingInactive() {
         try {
             List<Producto> productos = productoService.findAll();
-            return ResponseEntity.ok(ApiResponse.success("Todos los productos obtenidos exitosamente", productos));
+            var dto = productos.stream().map(ProductoDTO::from).toList();
+            return ResponseEntity.ok(ApiResponse.success("Todos los productos obtenidos exitosamente", dto));
         } catch (Exception e) {
-            log.error("Error obteniendo todos los productos: {}", e.getMessage());
+            log.error("Error obteniendo todos los productos: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ApiResponse.error("Error obteniendo productos: " + e.getMessage()));
         }
@@ -56,13 +59,13 @@ public class ProductoController {
         try {
             Optional<Producto> producto = productoService.findById(id);
             if (producto.isPresent()) {
-                return ResponseEntity.ok(ApiResponse.success("Producto encontrado", producto.get()));
+                return ResponseEntity.ok(ApiResponse.success("Producto encontrado", ProductoDTO.from(producto.get())));
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(ApiResponse.error("Producto no encontrado"));
             }
         } catch (Exception e) {
-            log.error("Error obteniendo producto por ID: {}", e.getMessage());
+            log.error("Error obteniendo producto por ID: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ApiResponse.error("Error obteniendo producto: " + e.getMessage()));
         }
@@ -73,9 +76,10 @@ public class ProductoController {
     public ResponseEntity<ApiResponse> buscarProductos(@RequestParam String nombre) {
         try {
             List<Producto> productos = productoService.findByNombre(nombre);
-            return ResponseEntity.ok(ApiResponse.success("Productos encontrados", productos));
+            var dto = productos.stream().map(ProductoDTO::from).toList();
+            return ResponseEntity.ok(ApiResponse.success("Productos encontrados", dto));
         } catch (Exception e) {
-            log.error("Error buscando productos: {}", e.getMessage());
+            log.error("Error buscando productos: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ApiResponse.error("Error buscando productos: " + e.getMessage()));
         }
@@ -86,9 +90,10 @@ public class ProductoController {
     public ResponseEntity<ApiResponse> getProductosConStockBajo() {
         try {
             List<Producto> productos = productoService.findProductosConStockBajo();
-            return ResponseEntity.ok(ApiResponse.success("Productos con stock bajo obtenidos", productos));
+            var dto = productos.stream().map(ProductoDTO::from).toList();
+            return ResponseEntity.ok(ApiResponse.success("Productos con stock bajo obtenidos", dto));
         } catch (Exception e) {
-            log.error("Error obteniendo productos con stock bajo: {}", e.getMessage());
+            log.error("Error obteniendo productos con stock bajo: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ApiResponse.error("Error obteniendo productos: " + e.getMessage()));
         }
@@ -99,9 +104,10 @@ public class ProductoController {
     public ResponseEntity<ApiResponse> getProductosConStock() {
         try {
             List<Producto> productos = productoService.findProductosConStock();
-            return ResponseEntity.ok(ApiResponse.success("Productos con stock obtenidos", productos));
+            var dto = productos.stream().map(ProductoDTO::from).toList();
+            return ResponseEntity.ok(ApiResponse.success("Productos con stock obtenidos", dto));
         } catch (Exception e) {
-            log.error("Error obteniendo productos con stock: {}", e.getMessage());
+            log.error("Error obteniendo productos con stock: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ApiResponse.error("Error obteniendo productos: " + e.getMessage()));
         }
@@ -113,9 +119,9 @@ public class ProductoController {
         try {
             Producto nuevoProducto = productoService.create(producto);
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(ApiResponse.success("Producto creado exitosamente", nuevoProducto));
+                    .body(ApiResponse.success("Producto creado exitosamente", ProductoDTO.from(nuevoProducto)));
         } catch (Exception e) {
-            log.error("Error creando producto: {}", e.getMessage());
+            log.error("Error creando producto: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(ApiResponse.error("Error creando producto: " + e.getMessage()));
         }
@@ -126,9 +132,9 @@ public class ProductoController {
     public ResponseEntity<ApiResponse> updateProducto(@PathVariable Long id, @Valid @RequestBody Producto producto) {
         try {
             Producto productoActualizado = productoService.update(id, producto);
-            return ResponseEntity.ok(ApiResponse.success("Producto actualizado exitosamente", productoActualizado));
+            return ResponseEntity.ok(ApiResponse.success("Producto actualizado exitosamente", ProductoDTO.from(productoActualizado)));
         } catch (Exception e) {
-            log.error("Error actualizando producto: {}", e.getMessage());
+            log.error("Error actualizando producto: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(ApiResponse.error("Error actualizando producto: " + e.getMessage()));
         }
@@ -143,11 +149,11 @@ public class ProductoController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(ApiResponse.error("La cantidad es requerida"));
             }
-            
+
             productoService.actualizarStock(id, cantidad);
             return ResponseEntity.ok(ApiResponse.success("Stock actualizado exitosamente"));
         } catch (Exception e) {
-            log.error("Error actualizando stock: {}", e.getMessage());
+            log.error("Error actualizando stock: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(ApiResponse.error("Error actualizando stock: " + e.getMessage()));
         }
@@ -160,7 +166,7 @@ public class ProductoController {
             productoService.deleteById(id);
             return ResponseEntity.ok(ApiResponse.success("Producto eliminado exitosamente"));
         } catch (Exception e) {
-            log.error("Error eliminando producto: {}", e.getMessage());
+            log.error("Error eliminando producto: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(ApiResponse.error("Error eliminando producto: " + e.getMessage()));
         }
@@ -173,7 +179,7 @@ public class ProductoController {
             productoService.deactivate(id);
             return ResponseEntity.ok(ApiResponse.success("Producto desactivado exitosamente"));
         } catch (Exception e) {
-            log.error("Error desactivando producto: {}", e.getMessage());
+            log.error("Error desactivando producto: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(ApiResponse.error("Error desactivando producto: " + e.getMessage()));
         }
@@ -186,7 +192,7 @@ public class ProductoController {
             productoService.activate(id);
             return ResponseEntity.ok(ApiResponse.success("Producto activado exitosamente"));
         } catch (Exception e) {
-            log.error("Error activando producto: {}", e.getMessage());
+            log.error("Error activando producto: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(ApiResponse.error("Error activando producto: " + e.getMessage()));
         }

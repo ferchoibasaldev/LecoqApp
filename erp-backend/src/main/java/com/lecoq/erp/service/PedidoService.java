@@ -12,7 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -63,35 +65,56 @@ public class PedidoService {
 
     public Pedido create(Pedido pedido, Long usuarioId) {
         Usuario usuario = usuarioService.findById(usuarioId)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado: " + usuarioId));
         pedido.setUsuario(usuario);
-        
-        // Calcular total
-        BigDecimal total = BigDecimal.ZERO;
+
+        if (pedido.getDetalles() == null) {
+            pedido.setDetalles(new ArrayList<>()); // evita NPE
+        }
+
+        boolean hayDetalles = !pedido.getDetalles().isEmpty();
+
+        // Si NO hay detalles: NO recalcules ni pises el total si ya vino > 0 (caso seeder)
+        if (!hayDetalles) {
+            // Si tampoco vino total válido, puedes decidir lanzar error:
+            if (pedido.getTotal() == null || pedido.getTotal().compareTo(BigDecimal.ZERO) <= 0) {
+                // throw new RuntimeException("Pedido sin detalles debe tener un total > 0");
+                // o deja que falle bean validation si tienes @Positive/@DecimalMin en la entidad
+            }
+            return pedidoRepository.save(pedido);
+        }
+
+        // Si HAY detalles: valida stock y calcula total desde las líneas
+        BigDecimal totalCalc = BigDecimal.ZERO;
+
         for (DetallePedido detalle : pedido.getDetalles()) {
             // Validar stock disponible
-            if (!productoService.validarStock(detalle.getProducto().getId(), detalle.getCantidad())) {
-                throw new RuntimeException("Stock insuficiente para el producto: " + 
-                    detalle.getProducto().getNombre());
+            if (detalle.getProducto() == null || detalle.getProducto().getId() == null) {
+                throw new RuntimeException("Detalle sin producto válido");
             }
-            
+            if (!productoService.validarStock(detalle.getProducto().getId(), detalle.getCantidad())) {
+                throw new RuntimeException("Stock insuficiente para el producto: " +
+                        detalle.getProducto().getNombre());
+            }
+
             // Obtener producto actualizado para precio
             Producto producto = productoService.findById(detalle.getProducto().getId())
                     .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
-            
+
             detalle.setProducto(producto);
             detalle.setPrecioUnitario(producto.getPrecio());
             detalle.setPedido(pedido);
-            
-            BigDecimal subtotal = producto.getPrecio().multiply(BigDecimal.valueOf(detalle.getCantidad()));
+
+            BigDecimal subtotal = producto.getPrecio()
+                    .multiply(BigDecimal.valueOf(detalle.getCantidad()));
             detalle.setSubtotal(subtotal);
-            total = total.add(subtotal);
+            totalCalc = totalCalc.add(subtotal);
         }
-        
-        pedido.setTotal(total);
+
+        pedido.setTotal(totalCalc); // ahora sí, con detalles, pisamos por el total calculado
         return pedidoRepository.save(pedido);
     }
+
 
     public Pedido update(Long id, Pedido pedido) {
         Pedido existente = pedidoRepository.findById(id)

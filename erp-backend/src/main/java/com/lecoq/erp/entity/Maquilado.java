@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -68,7 +69,7 @@ public class Maquilado {
     private Usuario usuario;
     
     @OneToMany(mappedBy = "maquilado", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<DetalleMaquilado> detalles;
+    private List<DetalleMaquilado> detalles = new ArrayList<>();
     
     @Column(name = "fecha_creacion")
     private LocalDateTime fechaCreacion;

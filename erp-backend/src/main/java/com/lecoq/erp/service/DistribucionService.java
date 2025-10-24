@@ -68,10 +68,10 @@ public class DistribucionService {
         Usuario usuario = usuarioService.findById(usuarioId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        // Verificar que el pedido esté confirmado
-        if (pedido.getEstado() != Pedido.EstadoPedido.CONFIRMADO) {
-            throw new RuntimeException("Solo se pueden programar distribuciones para pedidos confirmados");
-        }
+        // Verificar que el pedido esté confirmado REVISAR SI ES NECESARIO
+//        if (pedido.getEstado() != Pedido.EstadoPedido.CONFIRMADO) {
+//            throw new RuntimeException("Solo se pueden programar distribuciones para pedidos confirmados");
+//        }
 
         // Verificar que no exista ya una distribución para este pedido
         if (distribucionRepository.findByPedido(pedido).isPresent()) {

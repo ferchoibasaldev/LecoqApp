@@ -1,6 +1,7 @@
 package com.lecoq.erp.controller;
 
 import com.lecoq.erp.dto.ApiResponse;
+import com.lecoq.erp.dto.DistribucionDTO;
 import com.lecoq.erp.entity.Distribucion;
 import com.lecoq.erp.entity.Usuario;
 import com.lecoq.erp.service.DistribucionService;
@@ -34,16 +35,17 @@ public class DistribucionController {
         try {
             Usuario usuario = (Usuario) authentication.getPrincipal();
             List<Distribucion> distribuciones;
-            
+
             if (usuario.getRol() == Usuario.Rol.ADMIN) {
                 distribuciones = distribucionService.findAll();
             } else {
                 distribuciones = distribucionService.findByUsuario(usuario);
             }
-            
-            return ResponseEntity.ok(ApiResponse.success("Distribuciones obtenidas exitosamente", distribuciones));
+
+            var dto = distribuciones.stream().map(DistribucionDTO::from).toList();
+            return ResponseEntity.ok(ApiResponse.success("Distribuciones obtenidas exitosamente", dto));
         } catch (Exception e) {
-            log.error("Error obteniendo distribuciones: {}", e.getMessage());
+            log.error("Error obteniendo distribuciones: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ApiResponse.error("Error obteniendo distribuciones: " + e.getMessage()));
         }
@@ -55,13 +57,13 @@ public class DistribucionController {
         try {
             Optional<Distribucion> distribucion = distribucionService.findById(id);
             if (distribucion.isPresent()) {
-                return ResponseEntity.ok(ApiResponse.success("Distribución encontrada", distribucion.get()));
+                return ResponseEntity.ok(ApiResponse.success("Distribución encontrada", DistribucionDTO.from(distribucion.get())));
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(ApiResponse.error("Distribución no encontrada"));
             }
         } catch (Exception e) {
-            log.error("Error obteniendo distribución por ID: {}", e.getMessage());
+            log.error("Error obteniendo distribución por ID: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ApiResponse.error("Error obteniendo distribución: " + e.getMessage()));
         }
@@ -72,9 +74,10 @@ public class DistribucionController {
     public ResponseEntity<ApiResponse> getDistribucionesByEstado(@PathVariable Distribucion.EstadoDistribucion estado) {
         try {
             List<Distribucion> distribuciones = distribucionService.findByEstado(estado);
-            return ResponseEntity.ok(ApiResponse.success("Distribuciones obtenidas por estado", distribuciones));
+            var dto = distribuciones.stream().map(DistribucionDTO::from).toList();
+            return ResponseEntity.ok(ApiResponse.success("Distribuciones obtenidas por estado", dto));
         } catch (Exception e) {
-            log.error("Error obteniendo distribuciones por estado: {}", e.getMessage());
+            log.error("Error obteniendo distribuciones por estado: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ApiResponse.error("Error obteniendo distribuciones: " + e.getMessage()));
         }
@@ -85,9 +88,10 @@ public class DistribucionController {
     public ResponseEntity<ApiResponse> getDistribucionesByChofer(@RequestParam String nombre) {
         try {
             List<Distribucion> distribuciones = distribucionService.findByChoferNombre(nombre);
-            return ResponseEntity.ok(ApiResponse.success("Distribuciones encontradas por chofer", distribuciones));
+            var dto = distribuciones.stream().map(DistribucionDTO::from).toList();
+            return ResponseEntity.ok(ApiResponse.success("Distribuciones encontradas por chofer", dto));
         } catch (Exception e) {
-            log.error("Error buscando distribuciones por chofer: {}", e.getMessage());
+            log.error("Error buscando distribuciones por chofer: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ApiResponse.error("Error buscando distribuciones: " + e.getMessage()));
         }
@@ -98,9 +102,10 @@ public class DistribucionController {
     public ResponseEntity<ApiResponse> getDistribucionesByVehiculo(@PathVariable String placa) {
         try {
             List<Distribucion> distribuciones = distribucionService.findByVehiculoPlaca(placa);
-            return ResponseEntity.ok(ApiResponse.success("Distribuciones encontradas por vehículo", distribuciones));
+            var dto = distribuciones.stream().map(DistribucionDTO::from).toList();
+            return ResponseEntity.ok(ApiResponse.success("Distribuciones encontradas por vehículo", dto));
         } catch (Exception e) {
-            log.error("Error buscando distribuciones por vehículo: {}", e.getMessage());
+            log.error("Error buscando distribuciones por vehículo: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ApiResponse.error("Error buscando distribuciones: " + e.getMessage()));
         }
@@ -113,9 +118,10 @@ public class DistribucionController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fechaFin) {
         try {
             List<Distribucion> distribuciones = distribucionService.findByFechaSalidaBetween(fechaInicio, fechaFin);
-            return ResponseEntity.ok(ApiResponse.success("Distribuciones obtenidas por fecha", distribuciones));
+            var dto = distribuciones.stream().map(DistribucionDTO::from).toList();
+            return ResponseEntity.ok(ApiResponse.success("Distribuciones obtenidas por fecha", dto));
         } catch (Exception e) {
-            log.error("Error obteniendo distribuciones por fecha: {}", e.getMessage());
+            log.error("Error obteniendo distribuciones por fecha: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ApiResponse.error("Error obteniendo distribuciones: " + e.getMessage()));
         }
@@ -123,16 +129,16 @@ public class DistribucionController {
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'VENTAS')")
-    public ResponseEntity<ApiResponse> createDistribucion(@Valid @RequestBody Distribucion distribucion, 
+    public ResponseEntity<ApiResponse> createDistribucion(@Valid @RequestBody Distribucion distribucion,
                                                           @RequestParam Long pedidoId,
                                                           Authentication authentication) {
         try {
             Usuario usuario = (Usuario) authentication.getPrincipal();
             Distribucion nuevaDistribucion = distribucionService.create(distribucion, pedidoId, usuario.getId());
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(ApiResponse.success("Distribución creada exitosamente", nuevaDistribucion));
+                    .body(ApiResponse.success("Distribución creada exitosamente", DistribucionDTO.from(nuevaDistribucion)));
         } catch (Exception e) {
-            log.error("Error creando distribución: {}", e.getMessage());
+            log.error("Error creando distribución: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(ApiResponse.error("Error creando distribución: " + e.getMessage()));
         }
@@ -143,9 +149,9 @@ public class DistribucionController {
     public ResponseEntity<ApiResponse> updateDistribucion(@PathVariable Long id, @Valid @RequestBody Distribucion distribucion) {
         try {
             Distribucion distribucionActualizada = distribucionService.update(id, distribucion);
-            return ResponseEntity.ok(ApiResponse.success("Distribución actualizada exitosamente", distribucionActualizada));
+            return ResponseEntity.ok(ApiResponse.success("Distribución actualizada exitosamente", DistribucionDTO.from(distribucionActualizada)));
         } catch (Exception e) {
-            log.error("Error actualizando distribución: {}", e.getMessage());
+            log.error("Error actualizando distribución: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(ApiResponse.error("Error actualizando distribución: " + e.getMessage()));
         }
@@ -160,15 +166,15 @@ public class DistribucionController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(ApiResponse.error("El estado es requerido"));
             }
-            
+
             Distribucion.EstadoDistribucion nuevoEstado = Distribucion.EstadoDistribucion.valueOf(estadoStr.toUpperCase());
             Distribucion distribucionActualizada = distribucionService.cambiarEstado(id, nuevoEstado);
-            return ResponseEntity.ok(ApiResponse.success("Estado de la distribución actualizado", distribucionActualizada));
+            return ResponseEntity.ok(ApiResponse.success("Estado de la distribución actualizado", DistribucionDTO.from(distribucionActualizada)));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(ApiResponse.error("Estado inválido: " + request.get("estado")));
         } catch (Exception e) {
-            log.error("Error cambiando estado de la distribución: {}", e.getMessage());
+            log.error("Error cambiando estado de la distribución: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(ApiResponse.error("Error cambiando estado: " + e.getMessage()));
         }
@@ -181,7 +187,7 @@ public class DistribucionController {
             distribucionService.marcarComoEntregado(id);
             return ResponseEntity.ok(ApiResponse.success("Distribución marcada como entregada"));
         } catch (Exception e) {
-            log.error("Error marcando distribución como entregada: {}", e.getMessage());
+            log.error("Error marcando distribución como entregada: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(ApiResponse.error("Error marcando como entregada: " + e.getMessage()));
         }
@@ -194,7 +200,7 @@ public class DistribucionController {
             distribucionService.marcarComoEnRuta(id);
             return ResponseEntity.ok(ApiResponse.success("Distribución marcada como en ruta"));
         } catch (Exception e) {
-            log.error("Error marcando distribución como en ruta: {}", e.getMessage());
+            log.error("Error marcando distribución como en ruta: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(ApiResponse.error("Error marcando como en ruta: " + e.getMessage()));
         }
@@ -207,7 +213,7 @@ public class DistribucionController {
             distribucionService.marcarComoFallido(id);
             return ResponseEntity.ok(ApiResponse.success("Distribución marcada como fallida"));
         } catch (Exception e) {
-            log.error("Error marcando distribución como fallida: {}", e.getMessage());
+            log.error("Error marcando distribución como fallida: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(ApiResponse.error("Error marcando como fallida: " + e.getMessage()));
         }
@@ -220,7 +226,7 @@ public class DistribucionController {
             distribucionService.deleteById(id);
             return ResponseEntity.ok(ApiResponse.success("Distribución eliminada exitosamente"));
         } catch (Exception e) {
-            log.error("Error eliminando distribución: {}", e.getMessage());
+            log.error("Error eliminando distribución: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(ApiResponse.error("Error eliminando distribución: " + e.getMessage()));
         }
