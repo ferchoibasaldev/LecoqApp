@@ -2,7 +2,183 @@
 @tailwind components;
 @tailwind utilities;
 
+
+/* 🌿 Paleta verde armónica y moderna */
 :root {
+  --color-bg: #133519; /* Fondo principal muy claro */
+  --color-surface: #153a07; /* Tarjetas blancas suaves */
+  --color-text: #1b4332; /* Verde oscuro legible */
+  --color-muted: #5f6f65; /* Texto secundario gris verdoso */
+  --color-accent: #0d380f; /* Verde acento principal */
+  --color-accent-hover: #162717; /* Verde más fuerte */
+  --color-border: #143808; /* Bordes sutiles */
+  --color-success: #023504; /* Verde éxito */
+  --color-warning: #fdd835; /* Amarillo suave */
+  --color-error: #e57373; /* Rojo suave */
+
+  font-family: 'Inter', 'Poppins', sans-serif;
+  line-height: 1.6;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+}
+
+/* 🌿 Fondo general */
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(135deg, #bdeeca 0%, #1d3b1f 100%);
+}
+
+/* 🏷️ Banner superior */
+header.banner {
+  background: linear-gradient(90deg, #0a2e21, #04360b, #12ca19);
+  color: var(--color-text);
+  text-align: center;
+  padding: 1.2rem 0;
+  box-shadow: 0 2px 10px rgba(76, 175, 80, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+header.banner img {
+  height: 50px;
+  width: auto;
+  border-radius: 8px;
+}
+header.banner h1 {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #07360a;
+  margin: 0;
+}
+
+/* 🌿 Tarjetas */
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
+  padding: 1.5rem 2rem;
+  box-shadow: 0 6px 20px rgba(129, 199, 132, 0.15);
+  transition: all 0.3s ease;
+}
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(76, 175, 80, 0.2);
+}
+
+/* 🌿 Botones */
+button {
+  border: none;
+  border-radius: 0.75rem;
+  padding: 0.6em 1.2em;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-family: inherit;
+}
+
+/* Botón principal */
+button.primary {
+  background: var(--color-accent);
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(129, 199, 132, 0.3);
+}
+button.primary:hover {
+  background: var(--color-accent-hover);
+  box-shadow: 0 6px 15px rgba(102, 187, 106, 0.4);
+}
+
+/* Botón secundario */
+button.secondary {
+  background: #e8f5e9;
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+}
+button.secondary:hover {
+  background: #c8e6c9;
+}
+
+/* Botones especiales */
+button.success {
+  background: var(--color-success);
+  color: #fff;
+}
+button.success:hover {
+  background: #043d07;
+}
+button.danger {
+  background: var(--color-error);
+  color: #fff;
+}
+button.danger:hover {
+  background: #d32f2f;
+}
+
+/* Inputs */
+input, select, textarea {
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.6rem;
+  font-size: 0.95rem;
+  color: var(--color-text);
+  background: white;
+  transition: all 0.2s ease;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(129, 199, 132, 0.25);
+  outline: none;
+}
+
+/* 🧩 Tablas verdes */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 1rem;
+  overflow: hidden;
+}
+.table th {
+  background: linear-gradient(90deg, #a5d6a7, #81c784);
+  color: white;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+}
+.table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--color-border);
+  background-color: #f9fff9;
+}
+.table tr:hover td {
+  background-color: #e8f5e9;
+}
+
+/* 🧭 Paginación */
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+  color: var(--color-muted);
+}
+.pagination button {
+  border: 1px solid var(--color-border);
+  background: white;
+  color: var(--color-text);
+  border-radius: 0.5rem;
+}
+.pagination button:hover {
+  background: #e8f5e9;
+}
+.pagination button:disabled {
+  opacity: 0.5;
+}
+
+/*:root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -98,3 +274,4 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+*/

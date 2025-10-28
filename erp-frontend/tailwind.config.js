@@ -5,13 +5,13 @@ export default {
     extend: {
       colors: {
         brand: {
-          green:  "#2E7D32",
+          green:  "#043006ff",
           greenDark: "#154734",
-          blue:   "#0D47A1",
-          blueMid:"#1565C0",
+          blue:   "#04500eff",
+          blueMid:"#05410fff",
           gold:   "#EAC340",
           goldDark:"#CFAF2E",
-          off:    "#F7F7F2",
+          off:    "#bebe94ff",
         }
       },
       gradientColorStops: {

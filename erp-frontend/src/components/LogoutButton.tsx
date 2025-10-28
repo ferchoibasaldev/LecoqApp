@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../auth/AuthContext";
 
+
 export default function LogoutButton() {
   const { logout } = useAuth();
   const [loading, setLoading] = useState(false);

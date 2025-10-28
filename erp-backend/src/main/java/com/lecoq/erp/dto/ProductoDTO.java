@@ -13,6 +13,7 @@ public record ProductoDTO(
         Long id,
         String nombre,
         String descripcion,
+        String presentacion,
         Integer stock,
         BigDecimal precio,
         Boolean activo,
@@ -25,6 +26,7 @@ public record ProductoDTO(
                 p.getId(),
                 p.getNombre(),
                 p.getDescripcion(),
+                p.getPresentacion(),
                 p.getStock(),
                 p.getPrecio(),
                 // Si tu entidad usa "isActivo()" o "getEstado()", ajusta esta línea:
