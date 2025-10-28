@@ -6,18 +6,31 @@ import com.lecoq.erp.entity.Distribucion;
 public record DistribucionDTO(
         Long id,
         Long pedidoId,
-        String direccionEntrega,      // <--- "Destino" en la tabla
+        String direccionEntrega,
         LocalDateTime fechaSalida,
-        String estado
+        String estado,
+        String choferNombre,
+        String choferTelefono,
+        String vehiculoPlaca,
+        String vehiculoModelo,
+        String observaciones,
+        LocalDateTime fechaEntrega
 ) {
     public static DistribucionDTO from(Distribucion d) {
         if (d == null) return null;
         return new DistribucionDTO(
                 d.getId(),
                 d.getPedido() != null ? d.getPedido().getId() : null,
-                d.getDireccionEntrega(),     // <-- nombre EXACTO que lee el front
-                d.getFechaSalida(),          // <-- nombre EXACTO que lee el front
-                d.getEstado() != null ? d.getEstado().name() : null
+                d.getDireccionEntrega(),
+                d.getFechaSalida(),
+                d.getEstado() != null ? d.getEstado().name() : null,
+                d.getChoferNombre(),
+                d.getChoferTelefono(),
+                d.getVehiculoPlaca(),
+                d.getVehiculoModelo(),
+                d.getObservaciones(),
+                d.getFechaEntrega()
         );
     }
 }
+
