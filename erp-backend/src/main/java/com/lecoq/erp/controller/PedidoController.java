@@ -47,7 +47,13 @@ public class PedidoController {
                     .body(ApiResponse.error("Error obteniendo pedidos: " + e.getMessage()));
         }
     }
+    @GetMapping("/general/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','VENTAS')")
+    public ResponseEntity<Pedido> general(@PathVariable Long id){
 
+        Pedido general = pedidoService.buscarPedidoPorIdGeneral(id);
+        return ResponseEntity.ok(general);
+    }
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'VENTAS')")
     public ResponseEntity<ApiResponse> getPedidoById(@PathVariable Long id) {
@@ -204,16 +210,22 @@ public class PedidoController {
         }
     }
 
-    @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse> deletePedido(@PathVariable Long id) {
-        try {
-            pedidoService.deleteById(id);
-            return ResponseEntity.ok(ApiResponse.success("Pedido eliminado exitosamente"));
-        } catch (Exception e) {
-            log.error("Error eliminando pedido: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(ApiResponse.error("Error eliminando pedido: " + e.getMessage()));
-        }
+    @PatchMapping("/patch/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'VENTAS')")
+    public ResponseEntity<Pedido> patchPedidoEstado(@PathVariable Long id, @RequestBody Pedido p){
+        Pedido patchEstado = pedidoService.patchPedidoEstado(p, id);
+        return ResponseEntity.ok(patchEstado);
     }
+    // @DeleteMapping("/{id}")
+    // @PreAuthorize("hasRole('ADMIN')")
+    // public ResponseEntity<ApiResponse> deletePedido(@PathVariable Long id) {
+    //     try {
+    //         pedidoService.deleteById(id);
+    //         return ResponseEntity.ok(ApiResponse.success("Pedido eliminado exitosamente"));
+    //     } catch (Exception e) {
+    //         log.error("Error eliminando pedido: {}", e.getMessage(), e);
+    //         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+    //     }
+    //                 .body(ApiResponse.error("Error eliminando pedido: " + e.getMessage()));
+    //     }
 }

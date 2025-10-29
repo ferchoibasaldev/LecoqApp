@@ -2,7 +2,6 @@ package com.lecoq.erp.service;
 
 import com.lecoq.erp.entity.DetalleMaquilado;
 import com.lecoq.erp.entity.Maquilado;
-import com.lecoq.erp.entity.Producto;
 import com.lecoq.erp.entity.Usuario;
 import com.lecoq.erp.repository.DetalleMaquiladoRepository;
 import com.lecoq.erp.repository.MaquiladoRepository;

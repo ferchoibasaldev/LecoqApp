@@ -14,7 +14,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -96,7 +95,10 @@ public class PedidoService {
                 throw new RuntimeException("Stock insuficiente para el producto: " +
                         detalle.getProducto().getNombre());
             }
-
+            if (pedido.getFechaPedido() == null) {
+                pedido.setFechaPedido(LocalDateTime.now());
+            }
+            
             // Obtener producto actualizado para precio
             Producto producto = productoService.findById(detalle.getProducto().getId())
                     .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
@@ -157,6 +159,11 @@ public class PedidoService {
 
         return pedidoRepository.save(pedido);
     }
+    public Pedido buscarPedidoPorIdGeneral(Long id){
+        Pedido pedido = pedidoRepository.findById(id).orElse(null);
+
+        return pedidoRepository.save(pedido);
+    }
 
     public void deleteById(Long id) {
         Pedido pedido = pedidoRepository.findById(id)
@@ -174,5 +181,14 @@ public class PedidoService {
 
     public List<DetallePedido> findDetallesByPedidoId(Long pedidoId) {
         return detallePedidoRepository.findByPedidoId(pedidoId);
+    }
+
+    public Pedido patchPedidoEstado(Pedido estado, Long id){
+        Pedido pedido = pedidoRepository.findById(id).orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
+
+        if(estado.getEstado()!= null){
+            pedido.setEstado(estado.getEstado());
+        }
+        return pedidoRepository.save(pedido);
     }
 }
