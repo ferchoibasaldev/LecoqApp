@@ -50,7 +50,7 @@ export default function Productos() {
       setItems(nuevos);
       alert("🗑️ Producto eliminado correctamente");
     } catch (err) {
-      console.error("❌ Error eliminando producto:", err);
+      console.error("Error eliminando producto:", err);
       alert("Error al eliminar producto");
     }
   }
@@ -74,8 +74,8 @@ export default function Productos() {
           setItems(nuevos);
           setShowForm(false);
       } catch (err) {
-          console.error("❌ Error al crear producto:", err);
-          alert("❌ Error al crear producto");
+          console.error("Error al crear producto:", err);
+          alert("Error al crear producto");
       }
   }
   async function handleEditarProducto(e: React.FormEvent<HTMLFormElement>) {
@@ -102,7 +102,7 @@ export default function Productos() {
       alert("✅ Producto actualizado correctamente");
       setEditando(null);
     } catch (err) {
-      console.error("❌ Error al actualizar producto:", err);
+      console.error("Error al actualizar producto:", err);
       alert("Error al actualizar producto");
     }
   }
