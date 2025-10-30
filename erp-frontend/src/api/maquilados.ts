@@ -74,14 +74,48 @@ export async function listarMaquiladosPorEstado(estado: string): Promise<Maquila
   return raw.map(mapOne);
 }
 
-export async function crearMaquilado(payload: MaquiladoUpsert) {
-  const { data } = await api.post("/api/maquilados", payload);
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const toIsoDateTime = (v?: string | null) =>
+  !v ? null : ISO_DATE_RE.test(v) ? `${v}T00:00:00` : v;
+
+
+export async function crearMaquilado(f: MaquiladoUpsert) {
+  const body = {
+    numeroOrden: f.numeroOrden?.trim(),
+    proveedorNombre: f.proveedorNombre?.trim(),
+    proveedorRuc: f.proveedorRuc?.trim() || null,
+    proveedorContacto: f.proveedorContacto?.trim() || null,
+    fechaOrden: toIsoDateTime(f.fechaOrden),
+    fechaEntregaEstimada: toIsoDateTime(f.fechaEntregaEstimada),
+    fechaEntregaReal: toIsoDateTime(f.fechaEntregaReal),
+    estado: f.estado,
+    costoTotal: f.costoTotal,
+    observaciones: f.observaciones || null,
+  };
+
+  console.log("[HTTP] POST /api/maquilados", { body });
+  const { data } = await api.post("/api/maquilados", body);
   return data;
 }
-export async function actualizarMaquilado(id: number, payload: MaquiladoUpsert) {
-  const { data } = await api.put(`/api/maquilados/${id}`, payload);
+export async function actualizarMaquilado(id: number, f: MaquiladoUpsert) {
+  const body = {
+    numeroOrden: f.numeroOrden?.trim(),
+    proveedorNombre: f.proveedorNombre?.trim(),
+    proveedorRuc: f.proveedorRuc?.trim() || null,
+    proveedorContacto: f.proveedorContacto?.trim() || null,
+    fechaOrden: toIsoDateTime(f.fechaOrden),
+    fechaEntregaEstimada: toIsoDateTime(f.fechaEntregaEstimada),
+    fechaEntregaReal: toIsoDateTime(f.fechaEntregaReal),
+    estado: f.estado,
+    costoTotal: f.costoTotal,
+    observaciones: f.observaciones || null,
+  };
+
+  console.log("[HTTP] PUT /api/maquilados/" + id, { body });
+  const { data } = await api.put(`/api/maquilados/${id}`, body);
   return data;
 }
+
 export async function eliminarMaquilado(id: number) {
   const { data } = await api.delete(`/api/maquilados/${id}`);
   return data;

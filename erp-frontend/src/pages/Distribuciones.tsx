@@ -135,39 +135,65 @@ async function openEdit(row: DistribucionVM) {
     setForm((prev) => ({ ...prev, [key]: val }));
   }
 
-  function validar(): string | null {
-    if (!form.direccionEntrega || form.direccionEntrega.trim().length < 5)
-      return "Destino/Dirección es obligatorio (mín. 5 caracteres).";
-    if (!form.fechaSalida) return "Fecha de salida es obligatoria.";
-    if (!form.estado || !ESTADOS.includes(String(form.estado))) return "Estado inválido.";
-    if (form.choferTelefono && !/^[0-9+\s-]{6,}$/.test(form.choferTelefono)) return "Teléfono de chofer inválido.";
+function validar(): string | null {
+  if (editingId == null && (form.pedidoId == null || Number.isNaN(form.pedidoId)))
+    return "Pedido (ID) es obligatorio.";
+  if (!form.direccionEntrega || form.direccionEntrega.trim().length < 5)
+    return "Destino/Dirección es obligatorio (mín. 5 caracteres).";
+  if (!form.fechaSalida) return "Fecha de salida es obligatoria.";
+  if (!form.estado || !ESTADOS.includes(String(form.estado))) return "Estado inválido.";
+  if (form.choferTelefono && !/^[0-9+\s-]{6,}$/.test(form.choferTelefono)) return "Teléfono de chofer inválido.";
+  return null;
+}
 
-    return null;
-  }
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+function toIsoDateTime(dateStr?: string | null): string | null {
+  if (!dateStr) return null;                 // permite null
+  return ISO_DATE_RE.test(dateStr) ? `${dateStr}T00:00:00` : dateStr; // ya viene ISO con hora?
+}
 
-  async function onSave() {
-    const v = validar();
-    if (v) {
-      setErr(v);
-      return;
+async function onSave() {
+  const v = validar();
+  if (v) { setErr(v); return; }
+  setSaving(true);
+
+  try {
+    const payload: DistribucionUpsert = {
+      ...form,
+      fechaSalida: toIsoDateTime(form.fechaSalida),
+      fechaEntrega: toIsoDateTime(form.fechaEntrega),
+    };
+
+    console.log("[UI onSave] editingId=", editingId, "payload=", payload);
+
+    if (editingId == null) {
+      await crearDistribucion(payload);
+    } else {
+      await actualizarDistribucion(editingId, payload);
     }
-    setSaving(true);
-    try {
 
-      const payload: DistribucionUpsert = { ...form };
-      if (editingId == null) {
-        await crearDistribucion(payload);
-      } else {
-        await actualizarDistribucion(editingId, payload);
-      }
-      closeDialog();
-      load();
-    } catch (ex: any) {
-      setErr(ex?.response?.data?.message ?? "No se pudo guardar la distribución.");
-    } finally {
-      setSaving(false);
-    }
+    closeDialog();
+    load();
+  } catch (ex: any) {
+    console.error("Error guardando distribución (UI catch):", {
+      status: ex?.response?.status,
+      data: ex?.response?.data,
+      msg: ex?.message,
+    });
+
+    const serverMsg =
+      ex?.response?.data?.message ||
+      ex?.response?.data?.error ||
+      ex?.message ||
+      "No se pudo guardar la distribución.";
+
+    setErr(serverMsg);
+  } finally {
+    setSaving(false);
   }
+}
+
+
 
   return (
     <Layout>

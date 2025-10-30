@@ -7,7 +7,7 @@ type AuthState = { token: string | null; role: string | null; user?: any | null 
 type AuthCtx = AuthState & { login: (t: string, r: string, u?: any)=>void; logout: ()=>Promise<void> };
 
 const Ctx = createContext<AuthCtx | null>(null);
-export const useAuth = () => useContext(Ctx)!;  // <<— ESTO exporta useAuth
+export const useAuth = () => useContext(Ctx)!;
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate();

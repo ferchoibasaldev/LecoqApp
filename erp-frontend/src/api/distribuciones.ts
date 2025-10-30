@@ -19,8 +19,8 @@ export type DistribucionUpsert = {
   pedidoId?: number | null;
   direccionEntrega?: string | null;
   fechaSalida?: string | null;     // ISO: "YYYY-MM-DD"
-  fechaEntrega?: string | null;    // ISO
-  estado?: string | null;          // PROGRAMADO | EN_RUTA | ENTREGADO | CANCELADO
+  fechaEntrega?: string | null;
+  estado?: string | null;
   choferNombre?: string | null;
   choferTelefono?: string | null;
   vehiculoPlaca?: string | null;
@@ -77,9 +77,53 @@ export async function obtenerDistribucion(id: number): Promise<DistribucionVM> {
   };
 }
 
-export async function crearDistribucion(payload: DistribucionUpsert) {
-  const { data } = await api.post("/api/distribuciones", payload);
-  return data;
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const toIso = (v?: string | null) =>
+  !v ? null : ISO_DATE_RE.test(v) ? `${v}T00:00:00` : v;
+
+export async function crearDistribucion(f: DistribucionUpsert) {
+  if (f.pedidoId == null) {
+    console.error("[CREAR] pedidoId es null/undefined");
+    throw new Error("Pedido (ID) es obligatorio.");
+  }
+
+  const params = { pedidoId: f.pedidoId };
+
+  // ⚠️ Mapeo a los nombres del backend
+  const body = {
+    direccionEntrega: (f.direccionEntrega ?? "").trim(),
+    fechaSalida: toIso(f.fechaSalida),
+    fechaEntrega: toIso(f.fechaEntrega),
+    estado: f.estado,
+    choferNombre: f.choferNombre || null,
+    choferTelefono: f.choferTelefono || null,
+    vehiculoPlaca: f.vehiculoPlaca || null,
+    vehiculoModelo: f.vehiculoModelo || null,
+    observaciones: f.observaciones || null,
+  };
+
+  console.log("[HTTP] POST /api/distribuciones", { params, body });
+
+  try {
+    const res = await api.post("/api/distribuciones", body, { params });
+    console.log("[HTTP OK] /api/distribuciones", res.status, res.data);
+    return res.data;
+  } catch (error: any) {
+    // logs súper explícitos
+    console.error("[HTTP ERROR] POST /api/distribuciones", {
+      url: error?.config?.url,
+      params: error?.config?.params,
+      sentBody: safeParse(error?.config?.data),
+      status: error?.response?.status,
+      response: error?.response?.data,
+      message: error?.message,
+    });
+    throw error;
+  }
+}
+
+function safeParse(x: any) {
+  try { return typeof x === "string" ? JSON.parse(x) : x; } catch { return x; }
 }
 
 export async function actualizarDistribucion(id: number, payload: DistribucionUpsert) {
@@ -99,3 +143,9 @@ export function toDateInputValue(iso?: string | null) {
   const pad = (n: number) => String(n).padStart(2, "0");
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
+
+function toIsoDateTime(dateStr?: string | null) {
+  if (!dateStr) return null;
+  return `${dateStr}T00:00:00`;
+}
+
