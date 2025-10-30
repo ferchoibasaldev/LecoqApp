@@ -1,12 +1,16 @@
 package com.lecoq.erp.dto;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.lecoq.erp.entity.Distribucion;
 
 public record DistribucionDTO(
         Long id,
         Long pedidoId,
         String direccionEntrega,
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
         LocalDateTime fechaSalida,
         String estado,
         String choferNombre,
@@ -14,6 +18,7 @@ public record DistribucionDTO(
         String vehiculoPlaca,
         String vehiculoModelo,
         String observaciones,
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
         LocalDateTime fechaEntrega
 ) {
     public static DistribucionDTO from(Distribucion d) {
