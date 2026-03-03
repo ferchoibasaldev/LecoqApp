@@ -156,14 +156,5 @@ Para problemas o consultas:
 3. Consultar documentación de API
 4. Verificar permisos de usuario
 
-## 👥 Equipo de Desarrollo
-
-**Colaboradores:**
-- 👨‍💻 Fernando Ibarra Salinas
-- 👩‍💻 Astrid Timaná Yupari
-- 👨‍💻 Juan Carlos Gorriti Palacios  
-- 👩‍💻 Blanca Camargo Huaman
-
----
 
 **Desarrollado para LECOQ** - Sistema ERP de gestión integral para distribución de bebidas energizantes.
